@@ -1,0 +1,44 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Exports and reports
+study_sessions_*.csv
+study_sessions_*.json
+study_report_*.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Configuration
+config.json
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# Distribution
+build/
+dist/
+*.egg-info/
