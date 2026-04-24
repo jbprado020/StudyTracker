@@ -19,8 +19,19 @@ class Styles:
             padding: 8px;
             color: #1e293b;
         }
+        QDateEdit, QTimeEdit {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px;
+            color: #1e293b;
+        }
         QLineEdit:focus{
-            border: 1px solid #3b82f6;
+            border: 2px solid #2563eb;
+            background: #ffffff;
+        }
+        QDateEdit:focus, QTimeEdit:focus, QTableWidget:focus {
+            border: 2px solid #2563eb;
             background: #ffffff;
         }
 
@@ -34,6 +45,9 @@ class Styles:
         }
         QPushButton:hover {
             background-color: #1d4ed8;
+        }
+        QPushButton:focus {
+            border: 2px solid #0f172a;
         }
         QPushButton:pressed {
             background-color: #1e40af;
@@ -74,6 +88,75 @@ class Styles:
         QTabBar::tab:hover {
             background-color: #60a5fa;
             color: white;
+        }
+    """
+
+    HIGH_CONTRAST_STYLESHEET = """
+        QWidget {
+            background-color: #ffffff;
+            color: #111111;
+            font-family: 'Segoe UI';
+        }
+
+        QLineEdit, QDateEdit, QTimeEdit {
+            background: #ffffff;
+            border: 2px solid #111111;
+            border-radius: 6px;
+            padding: 8px;
+            color: #111111;
+        }
+
+        QLineEdit:focus, QDateEdit:focus, QTimeEdit:focus, QTableWidget:focus {
+            border: 3px solid #0b57d0;
+        }
+
+        QPushButton {
+            background-color: #0b57d0;
+            color: #ffffff;
+            border: 2px solid #111111;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-weight: 700;
+        }
+        QPushButton:hover {
+            background-color: #0842a3;
+        }
+        QPushButton:focus {
+            border: 3px solid #111111;
+        }
+
+        QTableWidget {
+            background: #ffffff;
+            border: 2px solid #111111;
+            selection-background-color: #0b57d0;
+            selection-color: #ffffff;
+        }
+
+        QHeaderView::section {
+            background-color: #111111;
+            color: #ffffff;
+            font-weight: 700;
+            border: none;
+            padding: 8px;
+        }
+
+        QTabWidget::pane {
+            border: none;
+            background: transparent;
+        }
+        QTabBar::tab {
+            background-color: #e5e7eb;
+            color: #111111;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 14px;
+            margin-right: 6px;
+            margin-top: 4px;
+            border: 1px solid #111111;
+        }
+        QTabBar::tab:selected {
+            background-color: #111111;
+            color: #ffffff;
         }
     """
 
@@ -122,7 +205,7 @@ class Styles:
             margin: 8px;
         }
 
-        QLabel.chartTitle {
+        QLabel#chartTitle {
             font-weight: 700;
             font-size: 14px;
             color: #1e40af;
@@ -183,6 +266,20 @@ class Styles:
             margin-bottom: 10px;
         }
     """
+
+    @staticmethod
+    def build_global_stylesheet(font_size: int = 13, high_contrast: bool = False) -> str:
+        """Build global stylesheet with accessibility options.
+
+        Args:
+            font_size: Base font size in pixels
+            high_contrast: Whether to apply high-contrast theme
+
+        Returns:
+            Complete stylesheet string
+        """
+        base = Styles.HIGH_CONTRAST_STYLESHEET if high_contrast else Styles.GLOBAL_STYLESHEET
+        return f"QWidget {{ font-size: {font_size}px; }}\n" + base
 
     @staticmethod
     def get_title_font():

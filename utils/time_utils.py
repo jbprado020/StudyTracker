@@ -1,6 +1,6 @@
 """Time utilities for Study Tracker."""
 
-from datetime import datetime
+from datetime import datetime, date as date_type
 
 
 def calculate_duration(start_time: str, end_time: str) -> float:
@@ -50,6 +50,22 @@ def validate_date_format(date_str: str) -> bool:
     try:
         datetime.strptime(date_str, "%Y-%m-%d")
         return True
+    except ValueError:
+        return False
+
+
+def validate_study_date(date_str: str) -> bool:
+    """Validate study date format and ensure it is not in the future.
+
+    Args:
+        date_str: Date string in format "YYYY-MM-DD"
+
+    Returns:
+        bool: True if valid and not in the future, otherwise False
+    """
+    try:
+        parsed_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        return parsed_date <= date_type.today()
     except ValueError:
         return False
 

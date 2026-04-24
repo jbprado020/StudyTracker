@@ -31,6 +31,8 @@ class Database:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sessions_date ON sessions(date)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sessions_subject ON sessions(subject)")
         self.conn.commit()
 
     def add_session(self, subject: str, start_time: str, end_time: str, date: str) -> bool:
@@ -88,7 +90,7 @@ class Database:
                 (subject, start_time, end_time, date, session_id),
             )
             self.conn.commit()
-            return True
+            return cursor.rowcount > 0
         except Exception as e:
             print(f"Error updating session: {e}")
             return False
@@ -106,7 +108,7 @@ class Database:
             cursor = self.conn.cursor()
             cursor.execute("DELETE FROM sessions WHERE id=?", (session_id,))
             self.conn.commit()
-            return True
+            return cursor.rowcount > 0
         except Exception as e:
             print(f"Error deleting session: {e}")
             return False

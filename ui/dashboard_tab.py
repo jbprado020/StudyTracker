@@ -27,6 +27,8 @@ class DashboardTab(QWidget):
         super().__init__()
         self.db = db
         self.setObjectName("DashboardTab")
+        self.setAccessibleName("Dashboard tab")
+        self.setAccessibleDescription("Overview of study statistics and visual progress charts")
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
@@ -45,20 +47,33 @@ class DashboardTab(QWidget):
         self.subjects_card = QLabel("📘 Subjects Today: 0")
         self.top_subject_card = QLabel("🏆 Top Subject: None")
 
+        self.total_hours_card.setAccessibleName("Total study hours")
+        self.total_hours_card.setAccessibleDescription("Displays total accumulated study hours")
+        self.subjects_card.setAccessibleName("Subjects studied today")
+        self.subjects_card.setAccessibleDescription("Displays number of subjects studied today")
+        self.top_subject_card.setAccessibleName("Top subject")
+        self.top_subject_card.setAccessibleDescription("Displays the subject with highest total study hours")
+
         self._setup_stat_cards()
 
         # Create chart figures
         self.figure_bar = plt.Figure(figsize=(6, 4))
         self.canvas_bar = FigureCanvas(self.figure_bar)
         self.canvas_bar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.canvas_bar.setAccessibleName("Daily study hours chart")
+        self.canvas_bar.setAccessibleDescription("Bar chart showing daily study hours")
 
         self.figure_pie = plt.Figure(figsize=(6, 4))
         self.canvas_pie = FigureCanvas(self.figure_pie)
         self.canvas_pie.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.canvas_pie.setAccessibleName("Study time by subject chart")
+        self.canvas_pie.setAccessibleDescription("Pie chart showing study time distribution by subject")
 
         self.figure_line = plt.Figure(figsize=(6, 4))
         self.canvas_line = FigureCanvas(self.figure_line)
         self.canvas_line.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.canvas_line.setAccessibleName("Weekly trend chart")
+        self.canvas_line.setAccessibleDescription("Line chart showing study hours over the last 7 days")
 
         # Create chart frames
         self.bar_frame = self._create_chart_frame("📊 Daily Study Hours", self.canvas_bar)
@@ -138,7 +153,8 @@ class DashboardTab(QWidget):
         # Subjects today
         today = datetime.today().strftime("%Y-%m-%d")
         sessions_today = self.db.get_sessions_by_date(today)
-        self.subjects_card.setText(f"📘 Subjects Today: {len(sessions_today)}")
+        unique_subjects_today = {session[1].strip().lower() for session in sessions_today if session[1].strip()}
+        self.subjects_card.setText(f"📘 Subjects Today: {len(unique_subjects_today)}")
 
         # Top subject
         subject_hours = self.db.get_subject_hours()

@@ -31,6 +31,11 @@ class Config:
             "enable_dark_mode": False,
             "auto_save_interval": 300,
             "export_auto_timestamp": True
+        },
+        "accessibility": {
+            "high_contrast": False,
+            "large_text": False,
+            "base_font_size": 13
         }
     }
 

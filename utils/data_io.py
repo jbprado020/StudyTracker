@@ -145,11 +145,21 @@ class DataImporter:
                 next(reader, None)  # Skip header
                 
                 for row in reader:
-                    if len(row) >= 4:
+                    if not row:
+                        continue
+
+                    if len(row) >= 5:
                         _, subject, start_time, end_time, date = row[:5]
-                        if db.add_session(subject.strip(), start_time.strip(), 
-                                        end_time.strip(), date.strip()):
-                            imported_count += 1
+                    elif len(row) == 4:
+                        subject, start_time, end_time, date = row
+                    else:
+                        continue
+
+                    if not all([subject.strip(), start_time.strip(), end_time.strip(), date.strip()]):
+                        continue
+
+                    if db.add_session(subject.strip(), start_time.strip(), end_time.strip(), date.strip()):
+                        imported_count += 1
         except Exception as e:
             print(f"Error importing CSV: {e}")
             return 0
