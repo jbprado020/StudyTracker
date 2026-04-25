@@ -2,9 +2,11 @@
 
 import csv
 from datetime import datetime
-from pathlib import Path
-from typing import List, Dict
 from config.database import Database
+from utils.logger import get_logger
+
+
+logger = get_logger(__name__)
 
 
 class DataExporter:
@@ -161,7 +163,7 @@ class DataImporter:
                     if db.add_session(subject.strip(), start_time.strip(), end_time.strip(), date.strip()):
                         imported_count += 1
         except Exception as e:
-            print(f"Error importing CSV: {e}")
+            logger.exception("Error importing CSV")
             return 0
 
         return imported_count
@@ -196,7 +198,7 @@ class DataImporter:
                                         session['end_time'], session['date']):
                             imported_count += 1
         except Exception as e:
-            print(f"Error importing JSON: {e}")
+            logger.exception("Error importing JSON")
             return 0
 
         return imported_count

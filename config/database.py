@@ -1,8 +1,12 @@
 """Database configuration and operations for Study Tracker."""
 
 import sqlite3
-from datetime import datetime
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple
+
+from utils.logger import get_logger
+
+
+logger = get_logger(__name__)
 
 
 class Database:
@@ -56,7 +60,7 @@ class Database:
             self.conn.commit()
             return True
         except Exception as e:
-            print(f"Error adding session: {e}")
+            logger.exception("Error adding session")
             return False
 
     def get_all_sessions(self) -> List[Tuple]:
@@ -92,7 +96,7 @@ class Database:
             self.conn.commit()
             return cursor.rowcount > 0
         except Exception as e:
-            print(f"Error updating session: {e}")
+            logger.exception("Error updating session")
             return False
 
     def delete_session(self, session_id: int) -> bool:
@@ -110,7 +114,7 @@ class Database:
             self.conn.commit()
             return cursor.rowcount > 0
         except Exception as e:
-            print(f"Error deleting session: {e}")
+            logger.exception("Error deleting session")
             return False
 
     def get_sessions_by_date(self, date: str) -> List[Tuple]:

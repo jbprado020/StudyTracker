@@ -1,6 +1,7 @@
 """Main application entry point for Study Tracker."""
 
 import sys
+import logging
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QTabWidget, QFrame, QHBoxLayout,
     QLabel, QCheckBox
@@ -13,7 +14,11 @@ from config.database import Database
 from config.settings import Config
 from ui.dashboard_tab import DashboardTab
 from ui.sessions_tab import SessionsTab
+from utils.logger import setup_app_logging, get_logger
 from utils.styles import Styles
+
+
+logger = get_logger(__name__)
 
 
 class StudyTracker(QWidget):
@@ -154,13 +159,19 @@ class StudyTracker(QWidget):
 
 def main():
     """Main entry point for the application."""
-    app = QApplication(sys.argv)
-    app.setStyleSheet(Styles.build_global_stylesheet())
+    setup_app_logging(logging.INFO)
 
-    window = StudyTracker()
-    window.show()
+    try:
+        app = QApplication(sys.argv)
+        app.setStyleSheet(Styles.build_global_stylesheet())
 
-    sys.exit(app.exec_())
+        window = StudyTracker()
+        window.show()
+
+        sys.exit(app.exec_())
+    except Exception:
+        logger.exception("Application crashed during startup or runtime loop")
+        raise
 
 
 if __name__ == "__main__":

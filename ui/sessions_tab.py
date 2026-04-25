@@ -12,10 +12,10 @@ import pandas as pd
 
 from utils.styles import Styles
 from utils.time_utils import (
-    validate_time_format, validate_date_format, validate_study_date,
-    is_end_after_start, calculate_duration
+    calculate_duration
 )
 from config.database import Database
+from services.session_service import SessionService
 
 
 class SessionsTab(QWidget):
@@ -29,6 +29,7 @@ class SessionsTab(QWidget):
         """
         super().__init__()
         self.db = db
+        self.session_service = SessionService(db)
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.setAccessibleName("Sessions tab")
@@ -188,53 +189,39 @@ class SessionsTab(QWidget):
     def save_session(self) -> None:
         """Save a new study session."""
         subject = self.subject_input.text().strip()
-        subject = " ".join(subject.split())
         start = self.start_input.time().toString("hh:mm AP")
         end = self.end_input.time().toString("hh:mm AP")
         date = self.date_input.date().toString("yyyy-MM-dd")
 
-        # Validation
-        if not subject or not start or not end or not date:
-            QMessageBox.warning(self, "Error", "Please fill in all fields!")
-            return
-
-        if not validate_time_format(start):
-            QMessageBox.warning(self, "Error", "Start time format invalid. Use: hh:mm AM/PM")
-            return
-
-        if not validate_time_format(end):
-            QMessageBox.warning(self, "Error", "End time format invalid. Use: hh:mm AM/PM")
-            return
-
-        if not validate_date_format(date):
-            QMessageBox.warning(self, "Error", "Date format invalid. Use: YYYY-MM-DD")
-            return
-
-        if not validate_study_date(date):
-            QMessageBox.warning(self, "Error", "Date cannot be in the future.")
-            return
-
-        if not is_end_after_start(start, end):
-            QMessageBox.warning(self, "Error", "End time must be after start time.")
+        validation_error = self.session_service.validate_session_input(
+            self.session_service.normalize_subject(subject),
+            start,
+            end,
+            date,
+        )
+        if validation_error:
+            QMessageBox.warning(self, "Error", validation_error)
             return
 
         # Confirmation
+        clean_subject = self.session_service.normalize_subject(subject)
         duration = calculate_duration(start, end)
         reply = QMessageBox.question(
             self,
             "Confirm Save",
-            f"Save session for '{subject}'?\n({duration:.2f} hours)\n\nDate: {date}",
+            f"Save session for '{clean_subject}'?\n({duration:.2f} hours)\n\nDate: {date}",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
 
         if reply == QMessageBox.Yes:
-            if self.db.add_session(subject, start, end, date):
-                QMessageBox.information(self, "Success", f"Session '{subject}' saved!")
+            result = self.session_service.create_session(subject, start, end, date)
+            if result.ok:
+                QMessageBox.information(self, "Success", f"Session '{clean_subject}' saved!")
                 self.load_sessions()
                 self.clear_inputs()
             else:
-                QMessageBox.critical(self, "Error", "Failed to save session.")
+                QMessageBox.critical(self, "Error", result.message)
 
     def edit_session(self) -> None:
         """Edit selected study session."""
@@ -251,7 +238,7 @@ class SessionsTab(QWidget):
 
         # Get new values or use old ones
         subject = self.subject_input.text().strip() or old_subject
-        subject = " ".join(subject.split())
+        subject = self.session_service.normalize_subject(subject)
         start = self.start_input.time().toString("hh:mm AP") or old_start
         end = self.end_input.time().toString("hh:mm AP") or old_end
         date = self.date_input.date().toString("yyyy-MM-dd") or old_date
@@ -261,25 +248,9 @@ class SessionsTab(QWidget):
             QMessageBox.information(self, "No Changes", "No changes detected.")
             return
 
-        # Validation
-        if not validate_time_format(start):
-            QMessageBox.warning(self, "Error", "Start time format invalid. Use: hh:mm AM/PM")
-            return
-
-        if not validate_time_format(end):
-            QMessageBox.warning(self, "Error", "End time format invalid. Use: hh:mm AM/PM")
-            return
-
-        if not validate_date_format(date):
-            QMessageBox.warning(self, "Error", "Date format invalid. Use: YYYY-MM-DD")
-            return
-
-        if not validate_study_date(date):
-            QMessageBox.warning(self, "Error", "Date cannot be in the future.")
-            return
-
-        if not is_end_after_start(start, end):
-            QMessageBox.warning(self, "Error", "End time must be after start time.")
+        validation_error = self.session_service.validate_session_input(subject, start, end, date)
+        if validation_error:
+            QMessageBox.warning(self, "Error", validation_error)
             return
 
         # Confirmation
@@ -294,7 +265,8 @@ class SessionsTab(QWidget):
         )
 
         if reply == QMessageBox.Yes:
-            if self.db.update_session(session_id, subject, start, end, date):
+            result = self.session_service.update_session(session_id, subject, start, end, date)
+            if result.ok:
                 QMessageBox.information(self, "Success", f"Session updated!")
                 self.load_sessions()
                 # Highlight updated row
@@ -302,7 +274,7 @@ class SessionsTab(QWidget):
                     self.table.item(selected, i).setBackground(QColor("#dbeafe"))
                 self.clear_inputs()
             else:
-                QMessageBox.critical(self, "Error", "Failed to update session.")
+                QMessageBox.critical(self, "Error", result.message)
 
     def delete_session(self) -> None:
         """Delete selected study session."""
