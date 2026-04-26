@@ -1,5 +1,7 @@
 # Pradofy Study Tracker 📚
 
+[![Python Tests](https://github.com/jbprado020/StudyTracker/actions/workflows/tests.yml/badge.svg)](https://github.com/jbprado020/StudyTracker/actions/workflows/tests.yml)
+
 A modern, feature-rich desktop application for tracking study sessions and visualizing productivity metrics. Built with PyQt5 and powered by data analysis libraries.
 
 ## Features ✨
