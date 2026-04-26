@@ -3,7 +3,8 @@
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QTableWidget,
     QTableWidgetItem, QFormLayout, QLabel, QFrame, QMessageBox, QHeaderView, QSizePolicy,
-    QDateEdit, QTimeEdit, QAbstractItemView, QShortcut, QFileDialog
+    QDateEdit, QTimeEdit, QAbstractItemView, QShortcut, QFileDialog,
+    QDoubleSpinBox, QCheckBox
 )
 from PyQt5.QtGui import QIcon, QColor, QKeySequence
 from PyQt5.QtCore import Qt, QSize, QDate, QTime
@@ -40,6 +41,9 @@ class SessionsTab(QWidget):
 
         # Buttons section
         self._create_buttons_section()
+
+        # Filter section
+        self._create_filter_section()
 
         # Table section
         self._create_table_section()
@@ -168,6 +172,67 @@ class SessionsTab(QWidget):
         QShortcut(QKeySequence("Ctrl+S"), self, self.save_session)
         QShortcut(QKeySequence("Ctrl+E"), self, self.export_sessions)
         QShortcut(QKeySequence("Delete"), self, self.delete_session)
+        QShortcut(QKeySequence("Ctrl+F"), self, lambda: self.search_input.setFocus())
+
+    def _create_filter_section(self) -> None:
+        """Create sessions filtering controls."""
+        filter_layout = QHBoxLayout()
+        filter_layout.setSpacing(10)
+        filter_layout.setContentsMargins(15, 8, 15, 8)
+
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("Search subject...")
+        self.search_input.setMinimumHeight(34)
+        self.search_input.setAccessibleName("Subject search")
+        self.search_input.setAccessibleDescription("Filter sessions by subject")
+        filter_layout.addWidget(QLabel("Search:"))
+        filter_layout.addWidget(self.search_input)
+
+        self.use_date_filter = QCheckBox("Use Date Range")
+        self.use_date_filter.setChecked(False)
+        self.use_date_filter.setAccessibleName("Date range filter toggle")
+        self.use_date_filter.setAccessibleDescription("Enable or disable date range filtering")
+        filter_layout.addWidget(self.use_date_filter)
+
+        self.filter_start_date = QDateEdit()
+        self.filter_start_date.setDisplayFormat("yyyy-MM-dd")
+        self.filter_start_date.setDate(QDate.currentDate().addMonths(-1))
+        self.filter_start_date.setCalendarPopup(True)
+        self.filter_start_date.setMinimumHeight(34)
+        filter_layout.addWidget(QLabel("From:"))
+        filter_layout.addWidget(self.filter_start_date)
+
+        self.filter_end_date = QDateEdit()
+        self.filter_end_date.setDisplayFormat("yyyy-MM-dd")
+        self.filter_end_date.setDate(QDate.currentDate())
+        self.filter_end_date.setCalendarPopup(True)
+        self.filter_end_date.setMinimumHeight(34)
+        filter_layout.addWidget(QLabel("To:"))
+        filter_layout.addWidget(self.filter_end_date)
+
+        self.min_duration_input = QDoubleSpinBox()
+        self.min_duration_input.setRange(0.0, 24.0)
+        self.min_duration_input.setSingleStep(0.25)
+        self.min_duration_input.setDecimals(2)
+        self.min_duration_input.setSuffix(" h")
+        self.min_duration_input.setMinimumHeight(34)
+        self.min_duration_input.setAccessibleName("Minimum duration")
+        self.min_duration_input.setAccessibleDescription("Filter sessions by minimum duration in hours")
+        filter_layout.addWidget(QLabel("Min Duration:"))
+        filter_layout.addWidget(self.min_duration_input)
+
+        self.apply_filter_button = QPushButton("Apply Filters")
+        self.apply_filter_button.clicked.connect(self.apply_filters)
+        filter_layout.addWidget(self.apply_filter_button)
+
+        self.clear_filter_button = QPushButton("Clear Filters")
+        self.clear_filter_button.clicked.connect(self.clear_filters)
+        filter_layout.addWidget(self.clear_filter_button)
+
+        filter_frame = QFrame()
+        filter_frame.setStyleSheet(Styles.FORM_FRAME_STYLESHEET)
+        filter_frame.setLayout(filter_layout)
+        self.layout.addWidget(filter_frame)
 
     def _create_table_section(self) -> None:
         """Create table section for displaying sessions."""
@@ -218,7 +283,7 @@ class SessionsTab(QWidget):
             result = self.session_service.create_session(subject, start, end, date)
             if result.ok:
                 QMessageBox.information(self, "Success", f"Session '{clean_subject}' saved!")
-                self.load_sessions()
+                self.apply_filters()
                 self.clear_inputs()
             else:
                 QMessageBox.critical(self, "Error", result.message)
@@ -268,7 +333,7 @@ class SessionsTab(QWidget):
             result = self.session_service.update_session(session_id, subject, start, end, date)
             if result.ok:
                 QMessageBox.information(self, "Success", f"Session updated!")
-                self.load_sessions()
+                self.apply_filters()
                 # Highlight updated row
                 for i in range(self.table.columnCount()):
                     self.table.item(selected, i).setBackground(QColor("#dbeafe"))
@@ -297,7 +362,7 @@ class SessionsTab(QWidget):
         if reply == QMessageBox.Yes:
             if self.db.delete_session(session_id):
                 QMessageBox.information(self, "Success", "Session deleted.")
-                self.load_sessions()
+                self.apply_filters()
             else:
                 QMessageBox.critical(self, "Error", "Failed to delete session.")
 
@@ -326,14 +391,48 @@ class SessionsTab(QWidget):
         except Exception as exc:
             QMessageBox.critical(self, "Export Failed", f"Could not export sessions.\n\nDetails: {exc}")
 
-    def load_sessions(self) -> None:
-        """Load all sessions into table."""
-        rows = self.db.get_all_sessions()
+    def load_sessions(self, rows=None) -> None:
+        """Load session rows into table.
+
+        Args:
+            rows: Optional pre-filtered rows. If None, loads all sessions.
+        """
+        if rows is None:
+            rows = self.db.get_all_sessions()
+
         self.table.setRowCount(len(rows))
 
         for i, row in enumerate(rows):
             for j, value in enumerate(row):
                 self.table.setItem(i, j, QTableWidgetItem(str(value)))
+
+    def apply_filters(self) -> None:
+        """Apply active filters and refresh the table."""
+        subject_query = self.search_input.text().strip()
+        min_duration = float(self.min_duration_input.value())
+
+        start_date = None
+        end_date = None
+        if self.use_date_filter.isChecked():
+            start_date = self.filter_start_date.date().toString("yyyy-MM-dd")
+            end_date = self.filter_end_date.date().toString("yyyy-MM-dd")
+
+        rows = self.session_service.get_filtered_sessions(
+            subject_query=subject_query,
+            start_date=start_date,
+            end_date=end_date,
+            min_duration_hours=min_duration,
+        )
+        self.load_sessions(rows)
+
+    def clear_filters(self) -> None:
+        """Reset filters and load all sessions."""
+        self.search_input.clear()
+        self.use_date_filter.setChecked(False)
+        self.filter_start_date.setDate(QDate.currentDate().addMonths(-1))
+        self.filter_end_date.setDate(QDate.currentDate())
+        self.min_duration_input.setValue(0.0)
+        self.load_sessions()
 
     def clear_inputs(self) -> None:
         """Clear all input fields."""

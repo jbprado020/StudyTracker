@@ -62,6 +62,28 @@ class SessionServiceTests(unittest.TestCase):
         self.assertFalse(result.ok)
         self.assertIn("not found", result.message.lower())
 
+    def test_get_filtered_sessions_by_subject_query(self):
+        """Filtering by subject should return only matching sessions."""
+        today = date.today().strftime("%Y-%m-%d")
+        self.db.add_session("Mathematics", "09:00 AM", "10:00 AM", today)
+        self.db.add_session("Science", "10:00 AM", "11:00 AM", today)
+
+        rows = self.service.get_filtered_sessions(subject_query="math")
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0][1], "Mathematics")
+
+    def test_get_filtered_sessions_by_min_duration(self):
+        """Minimum duration filter should drop shorter sessions."""
+        today = date.today().strftime("%Y-%m-%d")
+        self.db.add_session("Quick Review", "09:00 AM", "09:30 AM", today)
+        self.db.add_session("Deep Work", "10:00 AM", "12:00 PM", today)
+
+        rows = self.service.get_filtered_sessions(min_duration_hours=1.0)
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0][1], "Deep Work")
+
 
 if __name__ == "__main__":
     unittest.main()

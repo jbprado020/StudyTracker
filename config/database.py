@@ -1,7 +1,7 @@
 """Database configuration and operations for Study Tracker."""
 
 import sqlite3
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 
 from utils.logger import get_logger
 
@@ -71,6 +71,43 @@ class Database:
         """
         cursor = self.conn.cursor()
         cursor.execute("SELECT id, subject, start_time, end_time, date FROM sessions ORDER BY date DESC")
+        return cursor.fetchall()
+
+    def query_sessions(
+        self,
+        subject_query: str = "",
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> List[Tuple]:
+        """Query sessions by optional subject and date filters.
+
+        Args:
+            subject_query: Optional subject text search
+            start_date: Optional lower bound date (YYYY-MM-DD)
+            end_date: Optional upper bound date (YYYY-MM-DD)
+
+        Returns:
+            Filtered list of sessions
+        """
+        query = "SELECT id, subject, start_time, end_time, date FROM sessions WHERE 1=1"
+        params = []
+
+        if subject_query:
+            query += " AND LOWER(subject) LIKE ?"
+            params.append(f"%{subject_query.lower()}%")
+
+        if start_date:
+            query += " AND date >= ?"
+            params.append(start_date)
+
+        if end_date:
+            query += " AND date <= ?"
+            params.append(end_date)
+
+        query += " ORDER BY date DESC, id DESC"
+
+        cursor = self.conn.cursor()
+        cursor.execute(query, params)
         return cursor.fetchall()
 
     def update_session(self, session_id: int, subject: str, start_time: str, 

@@ -1,7 +1,7 @@
 """Business logic service for creating and updating study sessions."""
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List, Tuple
 
 from config.database import Database
 from utils.time_utils import (
@@ -9,6 +9,7 @@ from utils.time_utils import (
     validate_date_format,
     validate_study_date,
     is_end_after_start,
+    calculate_duration,
 )
 
 
@@ -126,3 +127,36 @@ class SessionService:
             return ServiceResult(False, "Session not found or update failed.")
 
         return ServiceResult(True, "Session updated successfully.")
+
+    def get_filtered_sessions(
+        self,
+        subject_query: str = "",
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        min_duration_hours: float = 0.0,
+    ) -> List[Tuple]:
+        """Return sessions filtered by search criteria.
+
+        Args:
+            subject_query: Optional subject search query
+            start_date: Optional date lower bound
+            end_date: Optional date upper bound
+            min_duration_hours: Optional minimum session duration filter
+
+        Returns:
+            Filtered session rows
+        """
+        rows = self.db.query_sessions(subject_query, start_date, end_date)
+        if min_duration_hours <= 0:
+            return rows
+
+        filtered_rows = []
+        for row in rows:
+            try:
+                duration = calculate_duration(row[2], row[3])
+                if duration >= min_duration_hours:
+                    filtered_rows.append(row)
+            except ValueError:
+                continue
+
+        return filtered_rows
