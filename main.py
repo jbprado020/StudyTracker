@@ -47,6 +47,8 @@ class StudyTracker(QWidget):
 
         # Main layout
         main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(12, 12, 12, 12)
+        main_layout.setSpacing(10)
         self.setLayout(main_layout)
 
         # Header
@@ -82,16 +84,21 @@ class StudyTracker(QWidget):
 
         # Title section
         title_box = QVBoxLayout()
+        title_box.setSpacing(2)
+
+        badge_label = QLabel("PRADOFY")
+        badge_label.setObjectName("appBadge")
+        title_box.addWidget(badge_label, alignment=Qt.AlignLeft)
+
         title_label = QLabel("Pradofy Study - Study Time & Productivity Tracker")
         title_label.setObjectName("appTitle")
         title_label.setFont(Styles.get_title_font())
 
         subtitle_label = QLabel("Track sessions • Visualize progress")
-        subtitle_label.setStyleSheet("color: #6b7280; font-size: 11px;")
+        subtitle_label.setObjectName("appSubtitle")
 
         title_box.addWidget(title_label)
         title_box.addWidget(subtitle_label)
-        title_box.setSpacing(0)
         header_layout.addLayout(title_box)
 
         # Stretch in middle
@@ -114,7 +121,7 @@ class StudyTracker(QWidget):
 
         # Date section
         date_label = QLabel(datetime.today().strftime("%A, %b %d %Y"))
-        date_label.setStyleSheet("color: #6b7280; font-size: 12px;")
+        date_label.setObjectName("headerDate")
         header_layout.addWidget(date_label)
 
         # Apply styling

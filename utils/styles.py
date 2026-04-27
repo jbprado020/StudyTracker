@@ -7,87 +7,166 @@ class Styles:
     # Global app stylesheet
     GLOBAL_STYLESHEET = """
         QWidget {
-            background-color: #f5f7fa;
+            background-color: #f4f7f4;
             font-family: 'Segoe UI';
             font-size: 13px;
+            color: #1f2937;
         }
 
-        QLineEdit {
-            background: #f8fafc;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            padding: 8px;
-            color: #1e293b;
+        QFrame#surfaceCard {
+            background-color: #ffffff;
+            border: 1px solid #dce6df;
+            border-radius: 16px;
         }
-        QDateEdit, QTimeEdit {
-            background: #f8fafc;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            padding: 8px;
-            color: #1e293b;
+
+        QLineEdit, QDateEdit, QTimeEdit, QDoubleSpinBox {
+            background: #f7faf7;
+            border: 1px solid #cbd8ce;
+            border-radius: 10px;
+            padding: 8px 10px;
+            color: #1f2937;
+            selection-background-color: #0f766e;
+            selection-color: #ffffff;
         }
-        QLineEdit:focus{
-            border: 2px solid #2563eb;
+
+        QLineEdit:focus, QDateEdit:focus, QTimeEdit:focus, QDoubleSpinBox:focus {
+            border: 2px solid #0f766e;
             background: #ffffff;
         }
-        QDateEdit:focus, QTimeEdit:focus, QTableWidget:focus {
-            border: 2px solid #2563eb;
+
+        QLineEdit::placeholder {
+            color: #8b9b8f;
+        }
+
+        QCheckBox {
+            color: #32443a;
+            spacing: 8px;
+        }
+
+        QCheckBox::indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid #9db4a2;
             background: #ffffff;
+        }
+
+        QCheckBox::indicator:checked {
+            background: #0f766e;
+            border: 1px solid #0f766e;
         }
 
         QPushButton {
-            background-color: #2563eb;
+            background-color: #0f766e;
             color: white;
             font-weight: 600;
-            border-radius: 8px;
-            padding: 8px 14px;
-            transition: background-color 0.3s ease;
+            border: 1px solid #0d5f58;
+            border-radius: 10px;
+            padding: 9px 15px;
         }
+
         QPushButton:hover {
-            background-color: #1d4ed8;
+            background-color: #0d5f58;
         }
-        QPushButton:focus {
-            border: 2px solid #0f172a;
-        }
+
         QPushButton:pressed {
-            background-color: #1e40af;
-        }
-        QHeaderView::section {
-            background-color: #e1e5ea;
-            padding: 4px;
-            border: none;
-            font-weight: bold;
+            background-color: #0a4b45;
         }
 
-        QTableWidget {
-            gridline-color: #dcdcdc;
+        QPushButton:focus {
+            border: 2px solid #f59e0b;
         }
 
-        QLabel {
-            color: #333;
+        QFrame#appHeader {
+            background: qlineargradient(
+                x1:0, y1:0, x2:1, y2:0,
+                stop:0 #0f766e,
+                stop:1 #115e59
+            );
+            border: 1px solid #0b4a45;
+            border-radius: 16px;
         }
+
+        QLabel#appTitle {
+            color: #f0fdf4;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        QLabel#appSubtitle {
+            color: #d1fae5;
+            font-size: 11px;
+        }
+
+        QLabel#appBadge {
+            background: rgba(255, 255, 255, 0.14);
+            color: #ecfeff;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 10px;
+            padding: 6px 10px;
+            font-weight: 600;
+        }
+
+        QLabel#headerDate {
+            color: #ccfbf1;
+            font-size: 12px;
+        }
+
         QTabWidget::pane {
             border: none;
             background: transparent;
         }
+
         QTabBar::tab {
-            background-color: #e0e7ff;
-            color: #1e3a8a;
+            background-color: #dcece2;
+            color: #1f4d46;
             font-weight: 600;
-            padding: 8px 16px;
+            padding: 10px 18px;
             border-radius: 14px;
-            margin-right: 6px;
-            margin-top: 4px;
-            transition: all 0.3s ease;
+            margin-right: 8px;
+            margin-top: 6px;
+            border: 1px solid #c4d8cb;
         }
+
         QTabBar::tab:selected {
-            background-color: #2563eb;
-            color: white;
-            font-weight: bold;
+            background-color: #0f766e;
+            color: #ffffff;
+            border: 1px solid #0d5f58;
         }
+
         QTabBar::tab:hover {
-            background-color: #60a5fa;
-            color: white;
+            background-color: #1f8a80;
+            color: #ffffff;
+        }
+
+        QLabel {
+            color: #283941;
+        }
+
+        QTableWidget {
+            background: #ffffff;
+            border: 1px solid #d6e3d9;
+            border-radius: 14px;
+            gridline-color: #edf2ed;
+            alternate-background-color: #f6faf7;
+            selection-background-color: #d1fae5;
+            selection-color: #14532d;
+            padding: 4px;
+        }
+
+        QTableWidget:focus {
+            border: 2px solid #0f766e;
+            background: #ffffff;
+        }
+
+        QHeaderView::section {
+            background-color: #ecf8f1;
+            color: #14532d;
+            font-weight: 700;
+            border: none;
+            border-bottom: 1px solid #d6e3d9;
+            padding: 10px;
         }
     """
 
@@ -162,36 +241,47 @@ class Styles:
 
     # Header styling
     HEADER_STYLESHEET = """
-        QFrame#appHeader {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #ffffff, stop:1 #f9fafb);
-            border-bottom: 1px solid #e2e8f0;
-            border-radius: 8px;
-        }
-        QLabel#appTitle {
-            color: #0f1720;
-        }
+        QFrame#appHeader { padding: 2px; }
     """
 
     # Stat cards styling
     STAT_CARD_STYLESHEET = """
         QLabel {
-            background-color: qlineargradient(
-                x1:0, y1:0, x2:1, y2:1,
-                stop:0 #60a5fa, stop:1 #2563eb
-            );
-            color: white;
-            border-radius: 16px;
-            padding: 18px 22px;
+            color: #ffffff;
+            border-radius: 18px;
+            padding: 20px 24px;
             font-weight: 600;
             font-size: 15px;
-            letter-spacing: 0.3;
+            letter-spacing: 0.2px;
+            min-height: 66px;
         }
-        QLabel:hover {
+
+        QLabel#hoursCard {
             background-color: qlineargradient(
                 x1:0, y1:0, x2:1, y2:1,
-                stop:0 #93c5fd, stop:1 #3b82f6
+                stop:0 #0f766e,
+                stop:1 #115e59
             );
-            border: 1px solid #60a5fa;
+        }
+
+        QLabel#subjectsCard {
+            background-color: qlineargradient(
+                x1:0, y1:0, x2:1, y2:1,
+                stop:0 #0ea5a2,
+                stop:1 #0f766e
+            );
+        }
+
+        QLabel#topSubjectCard {
+            background-color: qlineargradient(
+                x1:0, y1:0, x2:1, y2:1,
+                stop:0 #f59e0b,
+                stop:1 #d97706
+            );
+        }
+
+        QLabel:hover {
+            border: 1px solid rgba(255, 255, 255, 0.42);
         }
     """
 
@@ -200,19 +290,18 @@ class Styles:
         QFrame {
             background-color: #ffffff;
             border-radius: 16px;
-            border: 1px solid #e2e8f0;
-            padding: 22px 24px 26px 24px;
-            margin: 8px;
+            border: 1px solid #dce6df;
+            padding: 20px 22px 24px 22px;
+            margin: 8px 6px;
         }
 
         QLabel#chartTitle {
             font-weight: 700;
             font-size: 14px;
-            color: #1e40af;
-            margin-bottom: 10px;
-            padding-left: 6px;
-            letter-spacing: 0.4px;
-            border-left: 4px solid #2563eb;
+            color: #0f5132;
+            margin-bottom: 12px;
+            letter-spacing: 0.3px;
+            border-left: 4px solid #0f766e;
             padding-left: 10px;
         }
     """
@@ -221,9 +310,9 @@ class Styles:
     FORM_FRAME_STYLESHEET = """
         QFrame {
             background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 16px 20px;
+            border: 1px solid #dce6df;
+            border-radius: 14px;
+            padding: 18px 20px;
             margin-bottom: 12px;
         }
     """
@@ -232,7 +321,7 @@ class Styles:
     FORM_LABEL_STYLESHEET = """
         QLabel {
             font-weight: 600;
-            color: #1e3a8a;
+            color: #14532d;
             padding-right: 8px;
             min-width: 90px;
         }
@@ -242,20 +331,20 @@ class Styles:
     TABLE_STYLESHEET = """
         QTableWidget {
             background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            gridline-color: #f1f5f9;
-            alternate-background-color: #f9fafb;
-            selection-background-color: #93c5fd;
-            selection-color: #1e3a8a;
+            border: 1px solid #d6e3d9;
+            border-radius: 14px;
+            gridline-color: #edf2ed;
+            alternate-background-color: #f6faf7;
+            selection-background-color: #d1fae5;
+            selection-color: #14532d;
         }
         QHeaderView::section {
-            background-color: #eff6ff;
-            font-weight: 600;
+            background-color: #ecf8f1;
+            font-weight: 700;
             border: none;
-            padding: 8px;
+            padding: 10px;
             font-size: 13px;
-            color: #1e3a8a;
+            color: #14532d;
         }
     """
 
@@ -285,7 +374,7 @@ class Styles:
     def get_title_font():
         """Get title font configuration."""
         from PyQt5.QtGui import QFont
-        return QFont("Segoe UI", 16, QFont.Bold)
+        return QFont("Segoe UI", 17, QFont.Bold)
 
     @staticmethod
     def get_shadow_effect():
@@ -295,9 +384,9 @@ class Styles:
         from PyQt5.QtGui import QColor
         
         shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(10)
-        shadow.setOffset(0, 2)
-        shadow.setColor(Qt.gray)
+        shadow.setBlurRadius(24)
+        shadow.setOffset(0, 6)
+        shadow.setColor(QColor(15, 118, 110, 80))
         return shadow
 
     @staticmethod
@@ -307,9 +396,9 @@ class Styles:
         from PyQt5.QtGui import QColor
         
         shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(30)
-        shadow.setOffset(0, 8)
-        shadow.setColor(QColor(37, 99, 235, 60))
+        shadow.setBlurRadius(24)
+        shadow.setOffset(0, 6)
+        shadow.setColor(QColor(17, 94, 89, 70))
         return shadow
 
     @staticmethod
@@ -319,7 +408,7 @@ class Styles:
         from PyQt5.QtGui import QColor
         
         shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(24)
-        shadow.setOffset(0, 6)
-        shadow.setColor(QColor(37, 99, 235, 40))
+        shadow.setBlurRadius(18)
+        shadow.setOffset(0, 4)
+        shadow.setColor(QColor(17, 94, 89, 45))
         return shadow

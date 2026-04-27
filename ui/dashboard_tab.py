@@ -35,9 +35,9 @@ class DashboardTab(QWidget):
 
         # Grid layout for responsive design
         self.grid = QGridLayout()
-        self.grid.setSpacing(20)
+        self.grid.setSpacing(18)
         self.layout.addLayout(self.grid)
-        self.layout.setContentsMargins(20, 10, 20, 10)
+        self.layout.setContentsMargins(10, 6, 10, 10)
         self.layout.setAlignment(Qt.AlignTop)
         self.grid.setColumnStretch(0, 1)
         self.grid.setColumnStretch(1, 1)
@@ -46,6 +46,9 @@ class DashboardTab(QWidget):
         self.total_hours_card = QLabel("🕒 Total Hours: 0.00")
         self.subjects_card = QLabel("📘 Subjects Today: 0")
         self.top_subject_card = QLabel("🏆 Top Subject: None")
+        self.total_hours_card.setObjectName("hoursCard")
+        self.subjects_card.setObjectName("subjectsCard")
+        self.top_subject_card.setObjectName("topSubjectCard")
 
         self.total_hours_card.setAccessibleName("Total study hours")
         self.total_hours_card.setAccessibleDescription("Displays total accumulated study hours")
@@ -100,15 +103,16 @@ class DashboardTab(QWidget):
             card.setGraphicsEffect(Styles.get_card_shadow_effect())
 
         card_container = QHBoxLayout()
-        card_container.setSpacing(18)
+        card_container.setSpacing(14)
         card_container.addWidget(self.total_hours_card)
         card_container.addWidget(self.subjects_card)
         card_container.addWidget(self.top_subject_card)
         card_container.setAlignment(Qt.AlignCenter)
 
         card_frame = QFrame()
+        card_frame.setObjectName("surfaceCard")
         card_frame.setLayout(card_container)
-        card_frame.setStyleSheet("QFrame { border: none; }")
+        card_frame.setStyleSheet("QFrame#surfaceCard { border: none; background: transparent; }")
         self.layout.addWidget(card_frame)
 
     def _create_chart_frame(self, title: str, canvas: FigureCanvas) -> QFrame:

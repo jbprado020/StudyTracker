@@ -32,6 +32,8 @@ class SessionsTab(QWidget):
         self.db = db
         self.session_service = SessionService(db)
         self.layout = QVBoxLayout()
+        self.layout.setSpacing(10)
+        self.layout.setContentsMargins(8, 6, 8, 8)
         self.setLayout(self.layout)
         self.setAccessibleName("Sessions tab")
         self.setAccessibleDescription("Manage study sessions with add, edit, delete, and export actions")
@@ -54,6 +56,7 @@ class SessionsTab(QWidget):
         """Create form section for inputting session data."""
         form_layout = QFormLayout()
         form_frame = QFrame()
+        form_frame.setObjectName("surfaceCard")
         form_frame.setStyleSheet(Styles.FORM_FRAME_STYLESHEET)
         form_frame.setLayout(form_layout)
         self.layout.addWidget(form_frame)
@@ -106,7 +109,7 @@ class SessionsTab(QWidget):
         for field in [self.subject_input, self.start_input, self.end_input, self.date_input]:
             field.setMinimumHeight(36)
             field.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            field.setMinimumWidth(600)
+            field.setMinimumWidth(220)
 
     def _create_buttons_section(self) -> None:
         """Create buttons section for CRUD operations."""
@@ -160,6 +163,7 @@ class SessionsTab(QWidget):
             buttons_layout.addWidget(btn)
 
         buttons_container = QFrame()
+        buttons_container.setObjectName("surfaceCard")
         buttons_container.setLayout(buttons_layout)
         buttons_container.setStyleSheet(Styles.BUTTONS_CONTAINER_STYLESHEET)
         self.layout.addSpacing(10)
@@ -230,6 +234,7 @@ class SessionsTab(QWidget):
         filter_layout.addWidget(self.clear_filter_button)
 
         filter_frame = QFrame()
+        filter_frame.setObjectName("surfaceCard")
         filter_frame.setStyleSheet(Styles.FORM_FRAME_STYLESHEET)
         filter_frame.setLayout(filter_layout)
         self.layout.addWidget(filter_frame)
