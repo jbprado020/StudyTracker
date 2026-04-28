@@ -56,3 +56,20 @@ def get_palette(n: int) -> List[str]:
         return [mpl.colors.to_hex(c) for c in base[:n]]
     # generate an extended palette
     return [mpl.colors.to_hex(c) for c in sns.color_palette("husl", n)]
+
+
+def readable_text_color(hex_color: str) -> str:
+    """Return a readable text color ('#ffffff' or theme TEXT) for the given background.
+
+    Uses relative luminance to decide whether white or dark text has better contrast.
+    """
+    try:
+        rgb = mpl.colors.to_rgb(hex_color)
+    except Exception:
+        return TEXT
+
+    # relative luminance
+    r, g, b = rgb
+    lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    # threshold tuned for good contrast on light/dark backgrounds
+    return "#ffffff" if lum < 0.55 else TEXT

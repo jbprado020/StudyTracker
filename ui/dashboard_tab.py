@@ -221,9 +221,29 @@ class DashboardTab(QWidget):
             colors=colors,
             textprops={'color': chart_styles.TEXT, 'fontsize': 9, 'weight': 'bold'}
         )
-        for autotext in autotexts:
-            autotext.set_color("white")
+        # Ensure autotexts contrast with wedge background
+        for wedge, autotext in zip(wedges, autotexts):
+            try:
+                face = wedge.get_facecolor()
+                # face may be RGBA tuple
+                color_hex = None
+                try:
+                    import matplotlib as mpl
+
+                    color_hex = mpl.colors.to_hex(face)
+                except Exception:
+                    color_hex = None
+
+                text_color = chart_styles.readable_text_color(color_hex) if color_hex else chart_styles.TEXT
+            except Exception:
+                text_color = chart_styles.TEXT
+
+            autotext.set_color(text_color)
             autotext.set_fontsize(8)
+
+        # Make slice labels readable as well
+        for lbl in texts:
+            lbl.set_color(chart_styles.TEXT)
 
         ax.set_title("Study Time by Subject", fontsize=12, fontweight='bold', pad=40, color=chart_styles.TEXT)
         ax.axis('equal')
@@ -270,8 +290,9 @@ class DashboardTab(QWidget):
 
         sns.lineplot(x="date", y="hours", data=daily_totals, marker="o", ax=ax, color=line_color)
         ax.set_title("Weekly Trend (Last 7 Days)", color=chart_styles.TEXT)
-        ax.set_ylabel("Hours")
-        ax.set_xlabel("Date")
-        ax.tick_params(axis='x', rotation=30)
+        ax.set_ylabel("Hours", color=chart_styles.TEXT)
+        ax.set_xlabel("Date", color=chart_styles.TEXT)
+        ax.tick_params(axis='x', rotation=30, colors=chart_styles.TEXT)
+        ax.tick_params(axis='y', colors=chart_styles.TEXT)
         self.figure_line.subplots_adjust(top=0.88, bottom=0.2)
         self.canvas_line.draw()
