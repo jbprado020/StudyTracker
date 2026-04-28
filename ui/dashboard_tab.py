@@ -13,6 +13,7 @@ import pandas as pd
 
 from utils.styles import Styles
 from config.database import Database
+from utils import chart_styles
 
 
 class DashboardTab(QWidget):
@@ -58,6 +59,13 @@ class DashboardTab(QWidget):
         self.top_subject_card.setAccessibleDescription("Displays the subject with highest total study hours")
 
         self._setup_stat_cards()
+
+        # Apply chart style for consistent aesthetics
+        try:
+            chart_styles.apply_chart_style()
+        except Exception:
+            # fallback: ignore styling failure to avoid crashing UI
+            pass
 
         # Create chart figures
         self.figure_bar = plt.Figure(figsize=(6, 4))
@@ -179,8 +187,13 @@ class DashboardTab(QWidget):
 
         self.figure_bar.clear()
         ax = self.figure_bar.add_subplot(111)
-        sns.barplot(x="date", y="hours", data=df, ax=ax, palette="Blues")
-        ax.set_title("Daily Study Hours")
+        try:
+            palette = chart_styles.get_palette(len(df))
+        except Exception:
+            palette = "Blues"
+
+        sns.barplot(x="date", y="hours", data=df, ax=ax, palette=palette)
+        ax.set_title("Daily Study Hours", color=chart_styles.TEXT)
         ax.set_ylabel("Hours")
         ax.set_xlabel("Date")
         ax.tick_params(axis='x', rotation=30)
@@ -195,20 +208,24 @@ class DashboardTab(QWidget):
 
         self.figure_pie.clear()
         ax = self.figure_pie.add_subplot(111)
-        colors = sns.color_palette("pastel")[0:len(subject_hours)]
+        try:
+            colors = chart_styles.get_palette(len(subject_hours))
+        except Exception:
+            colors = sns.color_palette("pastel")[0:len(subject_hours)]
+
         wedges, texts, autotexts = ax.pie(
             subject_hours.values(),
             labels=subject_hours.keys(),
             autopct='%1.1f%%',
             startangle=140,
             colors=colors,
-            textprops={'color': 'black', 'fontsize': 9, 'weight': 'bold'}
+            textprops={'color': chart_styles.TEXT, 'fontsize': 9, 'weight': 'bold'}
         )
         for autotext in autotexts:
             autotext.set_color("white")
             autotext.set_fontsize(8)
 
-        ax.set_title("Study Time by Subject", fontsize=12, fontweight='bold', pad=40)
+        ax.set_title("Study Time by Subject", fontsize=12, fontweight='bold', pad=40, color=chart_styles.TEXT)
         ax.axis('equal')
         self.figure_pie.subplots_adjust(top=0.85)
         self.canvas_pie.draw()
@@ -246,8 +263,13 @@ class DashboardTab(QWidget):
 
         self.figure_line.clear()
         ax = self.figure_line.add_subplot(111)
-        sns.lineplot(x="date", y="hours", data=daily_totals, marker="o", ax=ax, color="green")
-        ax.set_title("Weekly Trend (Last 7 Days)")
+        try:
+            line_color = chart_styles.PRIMARY
+        except Exception:
+            line_color = "green"
+
+        sns.lineplot(x="date", y="hours", data=daily_totals, marker="o", ax=ax, color=line_color)
+        ax.set_title("Weekly Trend (Last 7 Days)", color=chart_styles.TEXT)
         ax.set_ylabel("Hours")
         ax.set_xlabel("Date")
         ax.tick_params(axis='x', rotation=30)
