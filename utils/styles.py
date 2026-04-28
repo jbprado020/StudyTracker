@@ -88,14 +88,14 @@ class Styles:
         }
 
         QLabel#appTitle {
-            color: #f0fdf4;
+            color: #0f5132;
             font-size: 19px;
             font-weight: 700;
             letter-spacing: 0.3px;
         }
 
         QLabel#appSubtitle {
-            color: #d1fae5;
+            color: #14532d;
             font-size: 11px;
         }
 
@@ -109,7 +109,7 @@ class Styles:
         }
 
         QLabel#headerDate {
-            color: #ccfbf1;
+            color: #0f5132;
             font-size: 12px;
         }
 
