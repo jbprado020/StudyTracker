@@ -3,14 +3,103 @@
 
 class Styles:
     """Centralized styling constants and methods."""
+    # Theme color tokens
+    PRIMARY = "#0f766e"
+    PRIMARY_DARK = "#0d5f58"
+    PRIMARY_DARKEST = "#0a4b45"
+    ACCENT = "#0ea5a2"
+    HIGHLIGHT = "#f59e0b"
+    HEADER_START = "#0f766e"
+    HEADER_END = "#115e59"
+    SURFACE = "#f4f7f4"
+    CARD_SURFACE = "#ffffff"
+    CARD_BORDER = "#dce6df"
+    TEXT = "#1f2937"
+    MUTED = "#8b9b8f"
+    TAB_BG = "#dcece2"
+    TAB_TEXT = "#1f4d46"
 
-    # Global app stylesheet
-    GLOBAL_STYLESHEET = """
+    # Global app stylesheet template (uses tokens replaced at runtime)
+    GLOBAL_STYLESHEET_TEMPLATE = """
         QWidget {
-            background-color: #f4f7f4;
+            background-color: {SURFACE};
             font-family: 'Segoe UI';
             font-size: 13px;
-            color: #1f2937;
+            color: {TEXT};
+        }
+
+        QFrame#surfaceCard {
+            background-color: {CARD_SURFACE};
+            border: 1px solid {CARD_BORDER};
+            border-radius: 16px;
+        }
+
+        QLineEdit, QDateEdit, QTimeEdit, QDoubleSpinBox {
+            background: #f7faf7;
+            border: 1px solid #cbd8ce;
+            border-radius: 10px;
+            padding: 8px 10px;
+            color: {TEXT};
+            selection-background-color: {PRIMARY};
+            selection-color: #ffffff;
+        }
+
+        QLineEdit:focus, QDateEdit:focus, QTimeEdit:focus, QDoubleSpinBox:focus {
+            border: 2px solid {PRIMARY};
+            background: {CARD_SURFACE};
+        }
+
+        QLineEdit::placeholder {
+            color: {MUTED};
+        }
+
+        QCheckBox {
+            color: #32443a;
+            spacing: 8px;
+        }
+
+        QCheckBox::indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid #9db4a2;
+            background: {CARD_SURFACE};
+        }
+
+        QCheckBox::indicator:checked {
+            background: {PRIMARY};
+            border: 1px solid {PRIMARY};
+        }
+
+        QPushButton {
+            background-color: {PRIMARY};
+            color: white;
+            font-weight: 600;
+            border: 1px solid {PRIMARY_DARK};
+            border-radius: 10px;
+            padding: 9px 15px;
+        }
+
+        QPushButton:hover {
+            background-color: {PRIMARY_DARK};
+        }
+
+        QPushButton:pressed {
+            background-color: {PRIMARY_DARKEST};
+        }
+
+        QPushButton:focus {
+            border: 2px solid {HIGHLIGHT};
+        }
+
+        QFrame#appHeader {
+            background: qlineargradient(
+                x1:0, y1:0, x2:1, y2:0,
+                stop:0 {HEADER_START},
+                stop:1 {HEADER_END}
+            );
+            border: 1px solid #0b4a45;
+            border-radius: 16px;
         }
 
         QFrame#surfaceCard {
@@ -119,8 +208,8 @@ class Styles:
         }
 
         QTabBar::tab {
-            background-color: #dcece2;
-            color: #1f4d46;
+            background-color: {TAB_BG};
+            color: {TAB_TEXT};
             font-weight: 600;
             padding: 10px 18px;
             border-radius: 14px;
@@ -130,13 +219,13 @@ class Styles:
         }
 
         QTabBar::tab:selected {
-            background-color: #0f766e;
+            background-color: {PRIMARY};
             color: #ffffff;
-            border: 1px solid #0d5f58;
+            border: 1px solid {PRIMARY_DARK};
         }
 
         QTabBar::tab:hover {
-            background-color: #1f8a80;
+            background-color: {PRIMARY_DARK};
             color: #ffffff;
         }
 
@@ -244,7 +333,7 @@ class Styles:
         QFrame#appHeader { padding: 2px; }
     """
 
-    # Stat cards styling
+    # Stat cards styling (template using theme tokens)
     STAT_CARD_STYLESHEET = """
         QLabel {
             color: #ffffff;
@@ -259,23 +348,23 @@ class Styles:
         QLabel#hoursCard {
             background-color: qlineargradient(
                 x1:0, y1:0, x2:1, y2:1,
-                stop:0 #0f766e,
-                stop:1 #115e59
+                stop:0 {PRIMARY},
+                stop:1 {HEADER_END}
             );
         }
 
         QLabel#subjectsCard {
             background-color: qlineargradient(
                 x1:0, y1:0, x2:1, y2:1,
-                stop:0 #0ea5a2,
-                stop:1 #0f766e
+                stop:0 {ACCENT},
+                stop:1 {PRIMARY}
             );
         }
 
         QLabel#topSubjectCard {
             background-color: qlineargradient(
                 x1:0, y1:0, x2:1, y2:1,
-                stop:0 #f59e0b,
+                stop:0 {HIGHLIGHT},
                 stop:1 #d97706
             );
         }
@@ -298,10 +387,10 @@ class Styles:
         QLabel#chartTitle {
             font-weight: 700;
             font-size: 14px;
-            color: #0f5132;
+            color: {TEXT};
             margin-bottom: 12px;
             letter-spacing: 0.3px;
-            border-left: 4px solid #0f766e;
+            border-left: 4px solid {PRIMARY};
             padding-left: 10px;
         }
     """
@@ -367,7 +456,36 @@ class Styles:
         Returns:
             Complete stylesheet string
         """
-        base = Styles.HIGH_CONTRAST_STYLESHEET if high_contrast else Styles.GLOBAL_STYLESHEET
+        tokens = {
+            "PRIMARY": Styles.PRIMARY,
+            "PRIMARY_DARK": Styles.PRIMARY_DARK,
+            "PRIMARY_DARKEST": Styles.PRIMARY_DARKEST,
+            "ACCENT": Styles.ACCENT,
+            "HIGHLIGHT": Styles.HIGHLIGHT,
+            "HEADER_START": Styles.HEADER_START,
+            "HEADER_END": Styles.HEADER_END,
+            "SURFACE": Styles.SURFACE,
+            "CARD_SURFACE": Styles.CARD_SURFACE,
+            "CARD_BORDER": Styles.CARD_BORDER,
+            "TEXT": Styles.TEXT,
+            "MUTED": Styles.MUTED,
+            "TAB_BG": Styles.TAB_BG,
+            "TAB_TEXT": Styles.TAB_TEXT,
+        }
+
+        if high_contrast:
+            base = Styles.HIGH_CONTRAST_STYLESHEET
+            try:
+                base = base.format(**tokens)
+            except Exception:
+                pass
+        else:
+            base = Styles.GLOBAL_STYLESHEET_TEMPLATE
+            try:
+                base = base.format(**tokens)
+            except Exception:
+                base = Styles.GLOBAL_STYLESHEET_TEMPLATE
+
         return f"QWidget {{ font-size: {font_size}px; }}\n" + base
 
     @staticmethod
