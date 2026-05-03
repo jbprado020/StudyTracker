@@ -28,14 +28,11 @@ class StudyTracker(QWidget):
         """Initialize the Study Tracker application."""
         super().__init__()
 
-        # Initialize configuration
         self.config = Config()
 
-        # Initialize database
         db_path = self.config.get("database_path", "study_sessions.db")
         self.db = Database(db_path)
 
-        # Window configuration
         self.setWindowIcon(QIcon("assets/book.png"))
         self.setWindowTitle("Pradofy - Study Time and Productivity Tracker")
         self.setGeometry(
@@ -45,26 +42,24 @@ class StudyTracker(QWidget):
             self.config.get("window_height", 600),
         )
 
-        # Main layout
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(12, 12, 12, 12)
         main_layout.setSpacing(10)
         self.setLayout(main_layout)
 
-        # Header
         self._create_header(main_layout)
 
-        # Tabs
         tabs = QTabWidget()
         tabs.setStyleSheet("QTabBar { margin-left: 10px; }")
 
-        # Dashboard tab
         self.dashboard = DashboardTab(self.db)
         tabs.addTab(self.dashboard, "Dashboard")
 
-        # Sessions tab
         self.sessions = SessionsTab(self.db)
         tabs.addTab(self.sessions, "Sessions")
+
+        # ✅ Wire the signal: any write in SessionsTab refreshes the dashboard
+        self.sessions.session_changed.connect(self.dashboard.update_all)
 
         main_layout.addWidget(tabs)
 
@@ -72,7 +67,7 @@ class StudyTracker(QWidget):
 
     def _create_header(self, layout: QVBoxLayout) -> None:
         """Create header section with title and date.
-        
+
         Args:
             layout: Parent layout to add header to
         """
@@ -82,7 +77,6 @@ class StudyTracker(QWidget):
         header_layout.setContentsMargins(12, 8, 12, 8)
         header_layout.setSpacing(10)
 
-        # Title section
         title_box = QVBoxLayout()
         title_box.setSpacing(2)
 
@@ -101,10 +95,8 @@ class StudyTracker(QWidget):
         title_box.addWidget(subtitle_label)
         header_layout.addLayout(title_box)
 
-        # Stretch in middle
         header_layout.addStretch()
 
-        # Accessibility controls
         self.large_text_checkbox = QCheckBox("Large Text")
         self.large_text_checkbox.setChecked(self.config.get("accessibility.large_text", False))
         self.large_text_checkbox.toggled.connect(self._on_accessibility_changed)
@@ -119,12 +111,10 @@ class StudyTracker(QWidget):
         self.high_contrast_checkbox.setAccessibleDescription("Enable high contrast colors for better readability")
         header_layout.addWidget(self.high_contrast_checkbox)
 
-        # Date section
         date_label = QLabel(datetime.today().strftime("%A, %b %d %Y"))
         date_label.setObjectName("headerDate")
         header_layout.addWidget(date_label)
 
-        # Apply styling
         header_frame.setStyleSheet(Styles.HEADER_STYLESHEET)
         header_frame.setGraphicsEffect(Styles.get_shadow_effect())
 
@@ -150,11 +140,7 @@ class StudyTracker(QWidget):
         self._apply_accessibility_styles()
 
     def closeEvent(self, event):  # noqa: N802
-        """Handle application close event.
-        
-        Args:
-            event: Close event
-        """
+        """Handle application close event."""
         self.db.close()
         geometry = self.geometry()
         self.config.set("window_x", geometry.x())
