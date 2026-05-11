@@ -12,6 +12,7 @@ from datetime import datetime
 import pandas as pd
 
 from utils.styles import Styles
+from utils.paths import resource_path
 from utils.time_utils import calculate_duration
 from config.database import Database
 from services.session_service import SessionService
@@ -114,7 +115,7 @@ class SessionsTab(QWidget):
         buttons_layout.setAlignment(Qt.AlignCenter)
 
         self.add_button = QPushButton("&Save Session")
-        self.add_button.setIcon(QIcon("assets/add-time.png"))
+        self.add_button.setIcon(QIcon(str(resource_path("assets", "add-time.png"))))
         self.add_button.setIconSize(QSize(22, 22))
         self.add_button.setMinimumHeight(45)
         self.add_button.clicked.connect(self.save_session)
@@ -122,7 +123,7 @@ class SessionsTab(QWidget):
         self.add_button.setAccessibleDescription("Save a new study session")
 
         self.edit_button = QPushButton("&Edit Session")
-        self.edit_button.setIcon(QIcon("assets/pen.png"))
+        self.edit_button.setIcon(QIcon(str(resource_path("assets", "pen.png"))))
         self.edit_button.setIconSize(QSize(22, 22))
         self.edit_button.setMinimumHeight(45)
         self.edit_button.clicked.connect(self.edit_session)
@@ -130,7 +131,7 @@ class SessionsTab(QWidget):
         self.edit_button.setAccessibleDescription("Update the selected study session")
 
         self.delete_button = QPushButton("&Delete Session")
-        self.delete_button.setIcon(QIcon("assets/delete.png"))
+        self.delete_button.setIcon(QIcon(str(resource_path("assets", "delete.png"))))
         self.delete_button.setIconSize(QSize(22, 22))
         self.delete_button.setMinimumHeight(45)
         self.delete_button.clicked.connect(self.delete_session)
@@ -138,7 +139,7 @@ class SessionsTab(QWidget):
         self.delete_button.setAccessibleDescription("Delete the selected study session")
 
         self.export_button = QPushButton("E&xport Sessions")
-        self.export_button.setIcon(QIcon("assets/share.png"))
+        self.export_button.setIcon(QIcon(str(resource_path("assets", "share.png"))))
         self.export_button.setIconSize(QSize(22, 22))
         self.export_button.setMinimumHeight(45)
         self.export_button.clicked.connect(self.export_sessions)

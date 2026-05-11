@@ -3,6 +3,8 @@
 import logging
 from pathlib import Path
 
+from utils.paths import project_path
+
 
 def setup_app_logging(log_level: int = logging.INFO) -> None:
     """Configure application-wide logging handlers once.
@@ -10,7 +12,7 @@ def setup_app_logging(log_level: int = logging.INFO) -> None:
     Args:
         log_level: Python logging level
     """
-    log_dir = Path("logs")
+    log_dir = project_path("logs")
     log_dir.mkdir(exist_ok=True)
 
     root_logger = logging.getLogger()

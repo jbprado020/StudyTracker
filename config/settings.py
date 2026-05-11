@@ -1,9 +1,9 @@
 """Configuration settings for Study Tracker."""
 
 import json
-import os
 from typing import Dict, Any
-from pathlib import Path
+
+from utils.paths import project_path
 
 
 class Config:
@@ -39,7 +39,7 @@ class Config:
         }
     }
 
-    CONFIG_FILE = "config.json"
+    CONFIG_FILE = project_path("config.json")
 
     def __init__(self):
         """Initialize configuration."""
@@ -51,14 +51,11 @@ class Config:
         Returns:
             Configuration dictionary
         """
-        if os.path.exists(self.CONFIG_FILE):
+        if self.CONFIG_FILE.exists():
             try:
-                with open(self.CONFIG_FILE, 'r') as f:
+                with open(self.CONFIG_FILE, 'r', encoding='utf-8') as f:
                     loaded_config = json.load(f)
-                    # Merge with defaults to ensure all keys exist
-                    default = self.DEFAULT_CONFIG.copy()
-                    default.update(loaded_config)
-                    return default
+                    return self._merge_defaults(self.DEFAULT_CONFIG, loaded_config)
             except Exception as e:
                 print(f"Error loading config: {e}. Using defaults.")
                 return self.DEFAULT_CONFIG.copy()
@@ -68,10 +65,21 @@ class Config:
     def save(self) -> None:
         """Save current configuration to file."""
         try:
-            with open(self.CONFIG_FILE, 'w') as f:
+            self.CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.CONFIG_FILE, 'w', encoding='utf-8') as f:
                 json.dump(self.config, f, indent=4)
         except Exception as e:
             print(f"Error saving config: {e}")
+
+    def _merge_defaults(self, defaults: Dict[str, Any], loaded: Dict[str, Any]) -> Dict[str, Any]:
+        """Recursively merge loaded settings into defaults."""
+        merged = defaults.copy()
+        for key, value in loaded.items():
+            if isinstance(value, dict) and isinstance(merged.get(key), dict):
+                merged[key] = self._merge_defaults(merged[key], value)
+            else:
+                merged[key] = value
+        return merged
 
     def get(self, key: str, default: Any = None) -> Any:
         """Get configuration value.

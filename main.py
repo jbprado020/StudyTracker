@@ -2,6 +2,7 @@
 
 import sys
 import logging
+from pathlib import Path
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QTabWidget, QFrame, QHBoxLayout,
     QLabel, QCheckBox
@@ -15,10 +16,19 @@ from config.settings import Config
 from ui.dashboard_tab import DashboardTab
 from ui.sessions_tab import SessionsTab
 from utils.logger import setup_app_logging, get_logger
+from utils.paths import resource_path, project_path
 from utils.styles import Styles
 
 
 logger = get_logger(__name__)
+
+
+def _resolve_database_path(db_path: str) -> str:
+    """Resolve relative database paths against the project root."""
+    path = Path(db_path)
+    if path.is_absolute():
+        return str(path)
+    return str(project_path(path))
 
 
 class StudyTracker(QWidget):
@@ -30,10 +40,10 @@ class StudyTracker(QWidget):
 
         self.config = Config()
 
-        db_path = self.config.get("database_path", "study_sessions.db")
+        db_path = _resolve_database_path(self.config.get("database_path", "study_sessions.db"))
         self.db = Database(db_path)
 
-        self.setWindowIcon(QIcon("assets/book.png"))
+        self.setWindowIcon(QIcon(str(resource_path("assets", "book.png"))))
         self.setWindowTitle("Pradofy - Study Time and Productivity Tracker")
         self.setGeometry(
             self.config.get("window_x", 100),
